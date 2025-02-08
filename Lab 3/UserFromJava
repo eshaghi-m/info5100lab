@@ -1,1 +1,76 @@
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class UserForm extends JFrame {
+    private JTextField firstNameField;
+    private JTextField lastNameField;
+    private JComboBox<String> genderComboBox;
+    private JTextField ageField;
+    private JTextField emailField;
+    private JTextField phoneNumberField;
+    private JTextArea hobbiesTextArea;
+    private JButton submitButton;
+
+    public UserForm() {
+        setTitle("User Form");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(8, 2));
+
+        // Initialize components
+        firstNameField = new JTextField();
+        lastNameField = new JTextField();
+        genderComboBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        ageField = new JTextField();
+        emailField = new JTextField();
+        phoneNumberField = new JTextField();
+        hobbiesTextArea = new JTextArea();
+        submitButton = new JButton("Submit");
+
+        // Add components to the frame
+        add(new JLabel("First Name:"));
+        add(firstNameField);
+        add(new JLabel("Last Name:"));
+        add(lastNameField);
+        add(new JLabel("Gender:"));
+        add(genderComboBox);
+        add(new JLabel("Age:"));
+        add(ageField);
+        add(new JLabel("Email:"));
+        add(emailField);
+        add(new JLabel("Phone Number:"));
+        add(phoneNumberField);
+        add(new JLabel("Hobbies:"));
+        add(new JScrollPane(hobbiesTextArea));
+        add(submitButton);
+
+        // Add action listener to the submit button
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                User user = new User();
+                user.setFirstName(firstNameField.getText());
+                user.setLastName(lastNameField.getText());
+                user.setGender((String) genderComboBox.getSelectedItem());
+                user.setAge(Integer.parseInt(ageField.getText()));
+                user.setEmail(emailField.getText());
+                user.setPhoneNumber(phoneNumberField.getText());
+                user.setHobbies(hobbiesTextArea.getText());
+
+                JOptionPane.showMessageDialog(UserForm.this, user.toString(), "User Information", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new UserForm().setVisible(true);
+            }
+        });
+    }
+}
