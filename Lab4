@@ -1,1 +1,193 @@
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Properties;
+
+public class UserForm {
+    private JFrame frame;
+    private JPanel mainPanel, registrationPanel, detailsPanel;
+    private JTextField firstNameField, lastNameField, ageField, emailField;
+    private JTextArea hobbyArea;
+    private JComboBox<String> genderComboBox;
+    private JLabel photoLabel;
+    private JButton submitButton, uploadPhotoButton;
+    private ImageIcon photo;
+    private JDatePickerImpl datePicker;
+
+    public UserForm() {
+        frame = new JFrame("User Registration Form");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        mainPanel = new JPanel(new CardLayout());
+        registrationPanel = new JPanel(new GridLayout(9, 2));
+        detailsPanel = new JPanel(new GridLayout(9, 2));
+
+        // Registration Panel
+        registrationPanel.add(new JLabel("First Name:"));
+        firstNameField = new JTextField();
+        registrationPanel.add(firstNameField);
+
+        registrationPanel.add(new JLabel("Last Name:"));
+        lastNameField = new JTextField();
+        registrationPanel.add(lastNameField);
+
+        registrationPanel.add(new JLabel("Age:"));
+        ageField = new JTextField();
+        registrationPanel.add(ageField);
+
+        registrationPanel.add(new JLabel("Email:"));
+        emailField = new JTextField();
+        registrationPanel.add(emailField);
+
+        registrationPanel.add(new JLabel("Hobby:"));
+        hobbyArea = new JTextArea();
+        registrationPanel.add(hobbyArea);
+
+        registrationPanel.add(new JLabel("Gender:"));
+        genderComboBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        registrationPanel.add(genderComboBox);
+
+        registrationPanel.add(new JLabel("Date of Birth:"));
+        UtilDateModel model = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Today");
+        p.put("text.month", "Month");
+        p.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        registrationPanel.add(datePicker);
+
+        registrationPanel.add(new JLabel("Photo:"));
+        photoLabel = new JLabel();
+        registrationPanel.add(photoLabel);
+
+        uploadPhotoButton = new JButton("Upload Photo");
+        uploadPhotoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(frame);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    photo = new ImageIcon(fileChooser.getSelectedFile().getPath());
+                    photoLabel.setIcon(photo);
+                }
+            }
+        });
+        registrationPanel.add(uploadPhotoButton);
+
+        submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (validateFields()) {
+                    showUserDetails();
+                }
+            }
+        });
+        registrationPanel.add(submitButton);
+
+        // Details Panel
+        detailsPanel.add(new JLabel("First Name:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Last Name:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Age:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Email:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Hobby:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Gender:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Date of Birth:"));
+        detailsPanel.add(new JLabel());
+
+        detailsPanel.add(new JLabel("Photo:"));
+        detailsPanel.add(new JLabel());
+
+        mainPanel.add(registrationPanel, "Registration");
+        mainPanel.add(detailsPanel, "Details");
+        frame.add(mainPanel);
+
+        frame.setVisible(true);
+    }
+
+    private boolean validateFields() {
+        if (firstNameField.getText().isEmpty() || lastNameField.getText().isEmpty() ||
+                ageField.getText().isEmpty() || emailField.getText().isEmpty() ||
+                hobbyArea.getText().isEmpty() || genderComboBox.getSelectedItem() == null ||
+                photo == null || datePicker.getJFormattedTextField().getText().isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "All fields are required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private void showUserDetails() {
+        JLabel label = (JLabel) detailsPanel.getComponent(1);
+        label.setText(firstNameField.getText());
+
+        label = (JLabel) detailsPanel.getComponent(3);
+        label.setText(lastNameField.getText());
+
+        label = (JLabel) detailsPanel.getComponent(5);
+        label.setText(ageField.getText());
+
+        label = (JLabel) detailsPanel.getComponent(7);
+        label.setText(emailField.getText());
+
+        label = (JLabel) detailsPanel.getComponent(9);
+        label.setText(hobbyArea.getText());
+
+        label = (JLabel) detailsPanel.getComponent(11);
+        label.setText((String) genderComboBox.getSelectedItem());
+
+        label = (JLabel) detailsPanel.getComponent(13);
+        label.setText(datePicker.getJFormattedTextField().getText());
+
+        label = (JLabel) detailsPanel.getComponent(15);
+        label.setIcon(photo);
+
+        CardLayout cl = (CardLayout) (mainPanel.getLayout());
+        cl.show(mainPanel, "Details");
+    }
+
+    public static void main(String[] args) {
+        new UserForm();
+    }
+}
+
+class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+    private String datePattern = "yyyy-MM-dd";
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+    @Override
+    public Object stringToValue(String text) throws ParseException {
+        return dateFormatter.parseObject(text);
+    }
+
+    @Override
+    public String valueToString(Object value) throws ParseException {
+        if (value != null) {
+            Calendar cal = (Calendar) value;
+            return dateFormatter.format(cal.getTime());
+        }
+
+        return "";
+    }
+}
